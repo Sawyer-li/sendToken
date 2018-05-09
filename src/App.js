@@ -29,7 +29,6 @@ class App extends Component {
       contactAddress: '',
       recAddress: '',
       drecAddress: [],           //多个收地址
-      tx: '',
       blockNumber: 1,
       host: '',
       messTimer: '',
@@ -41,7 +40,7 @@ class App extends Component {
       errorMes: '',
       errorNum: 0,
       totalTran: 0,
-      web3GasNum: 1
+      web3GasNum: 2
     }
     this.sendAddressChange = this.sendAddressChange.bind(this)
     this.sendPrivateChange = this.sendPrivateChange.bind(this)
@@ -134,13 +133,7 @@ class App extends Component {
             nonce = parseInt(res)+parseInt(i);
             _this.sendSingleTransation(contactAddress,sendAddress,recAddressArr[i],sendPrivate,nonce);
             i++;
-        },500)
-        /*
-        for(var i in recAddressArr){
-           nonce = parseInt(res)+parseInt(i);
-           _this.sendSingleTransation(contactAddress,sendAddress,recAddressArr[i],sendPrivate,nonce);
-        }       
-        */
+        },300)
     })
     //开始计算等待时间
     _this.state.waitTimer = setInterval(function(){
@@ -162,7 +155,7 @@ class App extends Component {
     var _web3 = this.state.web3;
     var _this = this;
     var address2 = recJson.address;
-    var num = recJson.num+"1000000000000000000";
+    var num = recJson.num+"000000000000000000";
     try{
         var hexNum = _web3.utils.toHex(num); 
     }catch(e){
@@ -172,11 +165,12 @@ class App extends Component {
     hexNum = addPreZero(hexNum);
     var rec = address2.slice(2,address2.length);
     address2 = rec;
+    var tGasPrice = _this.state.web3GasNum *  1000000000;     //设置为输入框选择的gas价格
     //交易数据
     const txData = {
         nonce: _web3.utils.toHex(nonce),
         gasLimit: _web3.utils.toHex(99000),   //
-        gasPrice: _web3.utils.toHex(3e9),    // 10 Gwei
+        gasPrice: _web3.utils.toHex(tGasPrice),    // 10 Gwei
         to: contract_address,
         from: address1,
         value: '0x00',         //web3.utils.toHex(web3.utils.toWei('1000000000000', 'wei'))
@@ -197,7 +191,8 @@ class App extends Component {
         console.log(hash);
     });
     tran.on('receipt', receipt => {
-        clearInterval(_this.state.waitTimer);
+        //clearInterval(_this.state.waitTimer);
+        //将成功信息加到数组 
         var asuccessMess = { address: recJson.address, hash:receipt.transactionHash }
         _this.state.successMess.push(asuccessMess);
         var sBox = document.getElementById('successBox');
@@ -263,7 +258,7 @@ class App extends Component {
                     </div>
                     <div>
                        <strong>输入gas出价,默认为1Gwei：</strong>
-                       <select onChange={this.web3GasNum}>
+                       <select onChange={this.web3GasNum} defaultValue={2}>
                             <option value={1}>1Gwei</option>
                             <option value={2}>2Gwei</option>
                             <option value={3}>3Gwei</option>

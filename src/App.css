@@ -72,4 +72,5 @@ code {
 .logBox{ width: 50%;}
 em{ color: red; }
 
-.successBox{ height: 300px; overflow: auto; }
+.successBox,.failBox{ width: 600px; height: 300px; overflow: auto; border: 1px solid grey;}
+
